@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>HYROX PREP — Sabela</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#f1f1ef;
+    --panel:#ffffff;
+    --panel2:#f4f4f2;
+    --border:#dfe0dc;
+    --chalk:#202326;
+    --body-text:#33363a;
+    --mute:#6b7178;
+    --strength:#3d6fa6;
+    --run:#c8382e;
+    --cond:#a9700f;
+    --racesim:#7d3f92;
+    --rest:#1e8f72;
+    --test:#93731a;
+    --block-cimientos:#8a5540;
+    --block-construccion:#6b7a1f;
+    --block-pico:#9c3f6b;
+    --block-puesta:#3f4f8f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--ink); color:var(--chalk);
+    font-family:'Inter',sans-serif; padding:0 0 80px 0;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Bebas Neue',sans-serif; letter-spacing:0.02em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:880px; margin:0 auto; padding:32px 20px;}
+
+  /* ---- BIB HEADER ---- */
+  .bib{
+    position:relative; background:var(--panel);
+    border:2px solid var(--border); border-radius:18px;
+    padding:28px 28px 24px; margin-bottom:20px;
+    display:flex; align-items:center; gap:24px; flex-wrap:wrap;
+  }
+  .bib::before, .bib::after{
+    content:''; position:absolute; top:-10px; width:20px; height:20px;
+    border-radius:50%; background:var(--ink); border:2px solid var(--border);
+  }
+  .bib::before{left:24px;} .bib::after{right:24px;}
+  /* ---- TEAR-OFF CALENDAR COUNTDOWN ---- */
+  .calendar{position:relative; width:110px; height:120px; flex-shrink:0;}
+  .calendar .stack{position:absolute; inset:0; background:var(--panel2); border:1px solid var(--border); border-radius:10px;}
+  .calendar .stack.s2{transform:rotate(5deg) translateY(3px);}
+  .calendar .stack.s1{transform:rotate(-3deg) translateY(2px);}
+  .calendar .top{
+    position:absolute; inset:0; background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    overflow:visible; box-shadow:0 4px 12px rgba(0,0,0,0.10); display:flex; flex-direction:column;
+  }
+  .calendar .band{
+    background:var(--run); color:#fff; text-align:center; font-size:9.5px; font-weight:700;
+    letter-spacing:0.09em; text-transform:uppercase; padding:6px 4px 5px; border-radius:9px 9px 0 0; position:relative;
+  }
+  .calendar .rings{position:absolute; top:-5px; left:0; right:0; display:flex; justify-content:space-around; padding:0 16px;}
+  .calendar .rings span{width:7px; height:7px; border-radius:50%; background:var(--ink); border:2px solid var(--border);}
+  .calendar .num{font-family:'Bebas Neue'; font-size:48px; text-align:center; line-height:1; flex:1; display:flex; align-items:center; justify-content:center;}
+  .calendar .lbl{font-size:9px; text-align:center; color:var(--mute); letter-spacing:0.05em; padding-bottom:9px; text-transform:uppercase;}
+  .bib-info{flex:1; min-width:220px;}
+  .bib-info h1{font-family:'Bebas Neue'; font-size:34px; letter-spacing:0.03em; margin:0 0 6px;}
+  .bib-info p{margin:0; color:var(--mute); font-size:14px; letter-spacing:0.03em;}
+  .bib-info .tag{
+    display:inline-block; margin-top:10px; padding:3px 10px; border-radius:100px;
+    background:var(--run); color:#ffffff; font-weight:700; font-size:11px;
+    letter-spacing:0.08em; text-transform:uppercase;
+  }
+
+  /* ---- TABS ---- */
+  .tabs{display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:28px; overflow-x:auto;}
+  .tab-btn{
+    background:none; border:none; padding:10px 4px; margin-right:24px; white-space:nowrap;
+    font-family:'Inter'; font-weight:600; font-size:13.5px; letter-spacing:0.02em;
+    color:var(--mute); cursor:pointer; border-bottom:2px solid transparent; position:relative; top:1px;
+  }
+  .tab-btn:hover{color:var(--chalk);}
+  .tab-btn.active{color:var(--chalk); border-bottom-color:var(--run);}
+  .tab-panel[hidden]{display:none;}
+
+  /* ---- TRACK / ROUTE PROGRESS ---- */
+  .route{display:flex; gap:4px; margin:6px 0 32px;}
+  .route-seg{flex:1; position:relative;}
+  .route-seg .bar{height:10px; border-radius:6px; background:var(--panel2); border:1px solid var(--border); overflow:hidden;}
+  .route-seg .fill{height:100%; transition:width 0.4s ease;}
+  .route-seg.done .fill{background:var(--rest);}
+  .route-seg.current .fill{background:var(--run);}
+  .route-seg.upcoming .fill{background:transparent;}
+  .route-label{font-size:11px; margin-top:8px; text-align:center; letter-spacing:0.06em; color:var(--mute); font-weight:600;}
+  .route-seg.current .route-label{color:var(--chalk);}
+  .runner{position:absolute; top:-22px; font-size:16px;}
+
+  /* ---- SECTION HEADERS ---- */
+  .section-head{display:flex; align-items:baseline; gap:12px; margin:36px 0 16px;}
+  .section-head:first-child{margin-top:0;}
+  .section-head h2{font-family:'Bebas Neue'; font-size:28px; letter-spacing:0.03em; margin:0;}
+  .section-head .dates{color:var(--mute); font-size:13px;}
+  .section-desc{color:var(--mute); font-size:14px; line-height:1.6; margin:-8px 0 18px;}
+
+  /* ---- BASELINES / PRS ---- */
+  .baseline-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px;}
+  .baseline-card{background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:12px 14px; position:relative;}
+  .baseline-card .lbl{font-size:11px; color:var(--mute); text-transform:uppercase; letter-spacing:0.06em;}
+  .baseline-card .val{font-family:'IBM Plex Mono'; font-size:17px; font-weight:600; margin-top:4px;}
+  .pr-date{font-size:10px; color:var(--mute); margin-top:4px; font-family:'IBM Plex Mono';}
+  .pr-del{position:absolute; top:8px; right:8px; background:none; border:none; color:var(--mute); font-size:16px; cursor:pointer; line-height:1; padding:2px;}
+  .pr-del:hover{color:var(--run);}
+  .empty-note{color:var(--mute); font-size:13px; font-style:italic; padding:6px 0 12px;}
+
+  .pr-form{display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 24px; align-items:flex-end;}
+  .pr-form .field{display:flex; flex-direction:column; gap:4px;}
+  .pr-form label{font-size:11px; color:var(--mute); text-transform:uppercase; letter-spacing:0.05em;}
+  .pr-form input{background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:7px 9px; font-size:13px; font-family:'Inter'; color:var(--chalk);}
+  .pr-form input#pr-name{width:170px;}
+  .pr-form input#pr-value{width:120px;}
+  .pr-form button{background:var(--chalk); color:var(--panel); border:none; border-radius:6px; padding:8px 16px; font-weight:600; font-size:13px; cursor:pointer; height:33px;}
+  .pr-form button:hover{opacity:0.85;}
+
+  /* ---- WEEK CARD ---- */
+  .week{background:var(--panel); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; overflow:hidden;}
+  .week-head{padding:14px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; gap:10px;}
+  .week-head:hover{background:var(--panel2);}
+  .week-head .wtitle{font-weight:600; font-size:15px;}
+  .week-head .wdates{font-family:'IBM Plex Mono'; font-size:12px; color:var(--mute);}
+  .chev{transition:transform 0.2s; color:var(--mute);}
+  .week.open .chev{transform:rotate(90deg);}
+  .week-body{display:none; padding:4px 18px 18px;}
+  .week.open .week-body{display:block;}
+
+  .day{border-top:1px solid var(--border); padding:14px 0;}
+  .day:first-child{border-top:none;}
+  .day-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
+  .tag{font-size:10px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; padding:3px 8px; border-radius:5px; color:#ffffff;}
+  .tag.strength{background:var(--strength);}
+  .tag.run{background:var(--run);}
+  .tag.cond{background:var(--cond);}
+  .tag.racesim{background:var(--racesim); color:#ffffff;}
+  .tag.rest{background:var(--rest);}
+  .tag.test{background:var(--test);}
+  .day-name{font-family:'Bebas Neue'; font-size:17px; letter-spacing:0.02em;}
+  .day-date{font-family:'IBM Plex Mono'; font-size:11px; color:var(--mute);}
+  .day-title{font-weight:600; font-size:14px; margin:2px 0 6px;}
+  .day ul{margin:0 0 10px; padding-left:18px; font-size:13.5px; color:var(--body-text); line-height:1.55;}
+  .day .note{font-size:12.5px; color:var(--cond); font-style:italic; margin-bottom:8px;}
+
+  .log{display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:8px 10px;}
+  .log label{font-size:11px; color:var(--mute); display:flex; align-items:center; gap:5px;}
+  .log select, .log input[type=text]{
+    background:var(--panel); border:1px solid var(--border); color:var(--chalk);
+    border-radius:6px; padding:4px 7px; font-size:12px; font-family:'Inter';
+  }
+  .log input[type=text]{flex:1; min-width:120px;}
+  .log input[type=checkbox]{width:15px; height:15px; accent-color:var(--rest);}
+
+  /* ---- PREPLAN ---- */
+  .preweek{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:10px;}
+  .preweek .ptitle{font-weight:600; font-size:14px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+  .preweek .pdates{font-family:'IBM Plex Mono'; font-size:11px; color:var(--mute);}
+  .preweek .pbody{font-size:13px; color:var(--body-text); margin-top:6px; line-height:1.5;}
+  .preweek textarea{
+    width:100%; margin-top:8px; background:var(--panel2); border:1px solid var(--border);
+    color:var(--chalk); border-radius:6px; padding:8px; font-size:12.5px; font-family:'Inter';
+    resize:vertical; min-height:36px;
+  }
+
+  .callout{
+    background:linear-gradient(135deg, rgba(200,56,46,0.08), rgba(200,56,46,0.02));
+    border:1px solid rgba(200,56,46,0.3); border-radius:12px; padding:14px 16px; margin-bottom:14px;
+  }
+  .callout h4{margin:0 0 8px; font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--run);}
+  table.splits{width:100%; border-collapse:collapse; font-family:'IBM Plex Mono'; font-size:12.5px;}
+  table.splits td{padding:3px 6px;}
+  table.splits tr:nth-child(odd){background:rgba(0,0,0,0.02);}
+
+  /* ---- FUTURE BLOCK (summary) ---- */
+  .future-week{display:flex; gap:14px; padding:12px 0; border-top:1px solid var(--border);}
+  .future-week:first-child{border-top:none;}
+  .future-week .fw-tag{font-family:'IBM Plex Mono'; font-size:11px; color:var(--mute); min-width:38px;}
+  .future-week .fw-txt{font-size:13.5px; color:var(--body-text);}
+
+  /* ---- RESULTADOS (closed weeks) ---- */
+  .result-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--border); font-size:13px; flex-wrap:wrap;}
+  .result-row:first-child{border-top:none;}
+  .result-status{width:18px; text-align:center; font-weight:700;}
+  .result-status.ok{color:var(--rest);}
+  .result-status.no{color:var(--mute);}
+  .result-notes{flex:1; min-width:120px; color:var(--body-text); font-size:12.5px;}
+
+  /* ---- BLOQUES ---- */
+  .block-card{background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:14px;}
+  .block-card-head{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;}
+  .block-card-head h3{font-family:'Bebas Neue'; font-size:24px; margin:0; letter-spacing:0.03em;}
+  .block-weeks{margin:0; padding-left:20px; font-size:13.5px; color:var(--body-text); line-height:1.75;}
+
+  .footnote{margin-top:40px; padding-top:20px; border-top:1px solid var(--border); color:var(--mute); font-size:12.5px; line-height:1.6;}
+  .save-indicator{position:fixed; bottom:18px; right:18px; background:var(--panel); border:1px solid var(--border);
+    padding:7px 14px; border-radius:100px; font-size:12px; color:var(--rest); opacity:0; transition:opacity 0.3s; pointer-events:none;}
+  .save-indicator.show{opacity:1;}
+  .save-indicator.save-error{color:var(--run);}
+
+  /* ---- CALENDARIO ---- */
+  .cal-nav{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
+  .cal-nav-btn{background:var(--panel); border:1px solid var(--border); border-radius:8px; width:32px; height:32px; font-size:16px; cursor:pointer; color:var(--chalk);}
+  .cal-nav-btn:hover{background:var(--panel2);}
+  .cal-month-label{font-family:'Bebas Neue'; font-size:22px; letter-spacing:0.03em; min-width:170px; text-align:center;}
+  .cal-today-btn{margin-left:auto; background:none; border:1px solid var(--border); border-radius:100px; padding:5px 14px; font-size:12px; color:var(--mute); cursor:pointer;}
+  .cal-today-btn:hover{color:var(--chalk); border-color:var(--chalk);}
+
+  .cal-weekdays{display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px;}
+  .cal-weekdays span{text-align:center; font-size:11px; color:var(--mute); text-transform:uppercase; letter-spacing:0.05em; font-weight:600;}
+
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px;}
+  .cal-cell{
+    background:var(--panel); border:1px solid var(--border); border-radius:9px; min-height:84px;
+    padding:6px 7px; cursor:pointer; display:flex; flex-direction:column; gap:4px; position:relative;
+  }
+  .cal-cell:hover{border-color:var(--chalk);}
+  .cal-cell.empty{background:transparent; border-color:transparent; cursor:default;}
+  .cal-cell.out-range{cursor:default; opacity:0.35;}
+  .cal-cell.week-level{border-style:dashed;}
+  .cal-cell.is-today{border-color:var(--run); border-width:2px;}
+  .cal-cell .cd-num{font-family:'IBM Plex Mono'; font-size:11px; color:var(--mute);}
+  .cal-cell.is-today .cd-num{color:var(--run); font-weight:700;}
+  .cal-cell .cd-tag{font-size:8.5px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; padding:2px 5px; border-radius:4px; color:#fff; display:inline-block; align-self:flex-start; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .cal-cell .cd-title{font-size:10.5px; color:var(--body-text); line-height:1.3; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;}
+  .cal-cell .cd-check{position:absolute; top:5px; right:7px; color:var(--rest); font-size:12px; font-weight:700;}
+
+  @media (max-width:520px){
+    .cal-cell{min-height:56px; padding:4px 5px;}
+    .cal-cell .cd-title{display:none;}
+  }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(20,22,24,0.55); display:none; align-items:center; justify-content:center;
+    padding:20px; z-index:50;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:16px; max-width:460px; width:100%;
+    max-height:85vh; overflow-y:auto; padding:24px; position:relative;
+  }
+  .modal-close{
+    position:absolute; top:14px; right:16px; background:none; border:none; font-size:22px; color:var(--mute); cursor:pointer; line-height:1;
+  }
+  .modal-close:hover{color:var(--chalk);}
+
+  /* ---- EDIT WORKOUT FORM ---- */
+  .edit-field{margin-bottom:12px;}
+  .edit-field label{display:block; font-size:11px; color:var(--mute); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;}
+  .edit-field select, .edit-field input[type=text], .edit-field textarea{
+    width:100%; background:var(--panel2); border:1px solid var(--border); border-radius:7px;
+    padding:8px 10px; font-size:13.5px; font-family:'Inter'; color:var(--chalk);
+  }
+  .edit-field textarea{font-family:'IBM Plex Mono'; font-size:12.5px; line-height:1.6; resize:vertical;}
+  .btn-save{background:var(--rest); color:#fff; border:none; border-radius:7px; padding:9px 16px; font-weight:600; font-size:13px; cursor:pointer;}
+  .btn-save:hover{opacity:0.9;}
+  .btn-cancel{background:none; color:var(--mute); border:1px solid var(--border); border-radius:7px; padding:9px 16px; font-weight:600; font-size:13px; cursor:pointer;}
+  .btn-cancel:hover{color:var(--chalk); border-color:var(--chalk);}
+  .btn-edit{background:none; color:var(--strength); border:1px solid var(--border); border-radius:7px; padding:6px 12px; font-weight:600; font-size:12px; cursor:pointer;}
+  .btn-edit:hover{border-color:var(--strength);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="bib">
+    <div class="calendar">
+      <div class="stack s2"></div>
+      <div class="stack s1"></div>
+      <div class="top">
+        <div class="band">Faltan<div class="rings"><span></span><span></span><span></span></div></div>
+        <div class="num" id="countdown-num">—</div>
+        <div class="lbl">días a Dallas</div>
+      </div>
+    </div>
+    <div class="bib-info">
+      <h1>HYROX PREP · SABELA</h1>
+      <p>Women Single · Open Division · Dallas, TX</p>
+      <p class="mono" style="margin-top:4px;">Carrera: domingo 22 nov 2026</p>
+      <span class="tag" id="phase-tag">—</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="calendario">Calendario</button>
+    <button class="tab-btn" data-tab="semanas">Semanas</button>
+    <button class="tab-btn" data-tab="bloques">Bloques</button>
+    <button class="tab-btn" data-tab="resultados">Resultados</button>
+  </div>
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="tab-panel" id="tab-dashboard">
+    <div class="route" id="route"></div>
+
+    <div class="section-head"><h2>Marcas</h2><span class="dates">baseline inicial + PRs que vayas registrando</span></div>
+    <div class="baseline-grid">
+      <div class="baseline-card"><div class="lbl">10K Z2</div><div class="val">~6:00/km</div></div>
+      <div class="baseline-card"><div class="lbl">5K</div><div class="val">25–30 min</div></div>
+      <div class="baseline-card"><div class="lbl">400m interval</div><div class="val">3:55–4:05/km</div></div>
+      <div class="baseline-card"><div class="lbl">Squat 5RM</div><div class="val">80 kg</div></div>
+      <div class="baseline-card"><div class="lbl">Peso muerto</div><div class="val">~90 kg</div></div>
+      <div class="baseline-card"><div class="lbl">Press banca</div><div class="val">40 kg</div></div>
+      <div class="baseline-card"><div class="lbl">Row 500m</div><div class="val">~2:15</div></div>
+      <div class="baseline-card"><div class="lbl">Ski erg 500m</div><div class="val">~2:30</div></div>
+      <div class="baseline-card"><div class="lbl">Farmer carry</div><div class="val">16 kg cómoda</div></div>
+      <div class="baseline-card"><div class="lbl">Wall ball train.</div><div class="val">6.35kg (14lb)</div></div>
+    </div>
+
+    <form class="pr-form" id="pr-form">
+      <div class="field"><label>Movimiento</label><input type="text" id="pr-name" placeholder="Ej. Squat 5RM" required></div>
+      <div class="field"><label>Marca</label><input type="text" id="pr-value" placeholder="Ej. 85kg" required></div>
+      <div class="field"><label>Fecha</label><input type="date" id="pr-date"></div>
+      <button type="submit">+ Añadir marca</button>
+    </form>
+    <div class="baseline-grid" id="prs-custom"></div>
+
+    <div class="section-head"><h2>Exportar</h2><span class="dates">para traer tu registro al chat</span></div>
+    <p class="section-desc">Genera un resumen de todo lo que has marcado y editado. Cópialo y pégalo en el chat con Claude para que lo lea y ajuste tu programación.</p>
+    <button class="pr-form button" id="export-btn" style="background:var(--chalk); color:var(--panel); border:none; border-radius:8px; padding:10px 18px; font-weight:600; font-size:13.5px; cursor:pointer;">Generar resumen</button>
+    <textarea id="export-output" readonly style="width:100%; margin-top:12px; min-height:160px; background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:12px; font-family:'IBM Plex Mono'; font-size:12px; color:var(--chalk); display:none;"></textarea>
+    <button id="copy-btn" style="display:none; margin-top:8px; background:var(--rest); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-weight:600; font-size:13px; cursor:pointer;">Copiar al portapapeles</button>
+    <div id="copy-status" style="margin-top:6px; font-size:12px; color:var(--rest);"></div>
+  </div>
+
+  <!-- ===== RESULTADOS ===== -->
+  <div class="tab-panel" id="tab-resultados" hidden>
+    <div class="section-head"><h2>Cimientos</h2><span class="dates" id="preplan-dates"></span></div>
+    <p class="section-desc">Las 6 semanas de base autodirigida antes de empezar el plan estructurado — lo que ya construiste por tu cuenta. Detalle a nivel resumen — usa las notas para completar lo que recuerdes.</p>
+    <div class="callout">
+      <h4>Test de intervalos registrado — 6×400m</h4>
+      <table class="splits">
+        <tr><td>1</td><td>1:34</td><td>3:48/km</td></tr>
+        <tr><td>2</td><td>1:37</td><td>3:59/km</td></tr>
+        <tr><td>3</td><td>1:39</td><td>4:04/km</td></tr>
+        <tr><td>4</td><td>1:36</td><td>3:53/km</td></tr>
+        <tr><td>5</td><td>1:36</td><td>3:55/km</td></tr>
+        <tr><td>6</td><td>1:42</td><td>4:13/km</td></tr>
+      </table>
+    </div>
+    <div id="preplan"></div>
+
+    <div class="section-head"><h2>Semanas cerradas</h2><span class="dates">plan estructurado, con tu registro real</span></div>
+    <p class="section-desc">Se cierran automáticamente cuando pasa la fecha. El estado y RPE salen de lo que marques en la pestaña Semanas.</p>
+    <div id="closed-weeks"></div>
+  </div>
+
+  <!-- ===== CALENDARIO ===== -->
+  <div class="tab-panel" id="tab-calendario" hidden>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" id="cal-prev">‹</button>
+      <div class="cal-month-label" id="cal-month-label">—</div>
+      <button class="cal-nav-btn" id="cal-next">›</button>
+      <button class="cal-today-btn" id="cal-today">Hoy</button>
+    </div>
+    <div class="cal-weekdays"><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span></div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="section-desc" style="margin-top:16px;">Bordes de línea continua = sesión detallada día a día. Bordes discontinuos = bloque todavía a nivel de semana. Toca cualquier día para ver el detalle completo y registrar cómo fue.</p>
+  </div>
+
+  <!-- ===== SEMANAS ===== -->
+  <div class="tab-panel" id="tab-semanas" hidden>
+    <div class="section-head"><h2>CIMIENTOS</h2><span class="dates" id="cimientos-dates"></span></div>
+    <p class="section-desc">Bloque ya sucedido — base autodirigida. Días con detalle propio se muestran completos; los que aún no tienen sesión específica muestran el patrón general de esa semana.</p>
+    <div id="cimientos-weeks"></div>
+
+    <div class="section-head"><h2>BASE</h2><span class="dates" id="base-dates"></span></div>
+    <p class="section-desc">Motor aeróbico, fuerza general, técnica en ski erg / burpee broad jump, prehab de rodilla. Patrón 3:1.</p>
+    <div id="base-weeks"></div>
+
+    <div class="section-head"><h2>CONSTRUCCIÓN</h2><span class="dates" id="build-dates"></span></div>
+    <p class="section-desc">De capacidad general a rendimiento específico de carrera. Detalle día a día se añade conforme se acerca el bloque.</p>
+    <div id="build-weeks"></div>
+
+    <div class="section-head"><h2>PICO</h2><span class="dates" id="peak-dates"></span></div>
+    <p class="section-desc">Simulacros de carrera completa y ejecución bajo fatiga real.</p>
+    <div id="peak-weeks"></div>
+
+    <div class="section-head"><h2>PUESTA A PUNTO</h2><span class="dates" id="taper-dates"></span></div>
+    <p class="section-desc">Bajada de volumen, afinar, logística de viaje. Termina en carrera.</p>
+    <div id="taper-weeks"></div>
+  </div>
+
+  <!-- ===== BLOQUES ===== -->
+  <div class="tab-panel" id="tab-bloques" hidden>
+    <div class="section-head"><h2>Macrociclo</h2><span class="dates">17 semanas · 4 bloques</span></div>
+    <p class="section-desc">Vista de pájaro del proceso completo — el porqué de cada bloque, sin bajar al detalle día a día.</p>
+    <div id="bloques-list"></div>
+  </div>
+
+  <div class="footnote">
+    Desde el 21 de agosto hay datos de Garmin disponibles — a partir de esa fecha las zonas Z2 pueden calibrarse por FC real. El detalle día a día de Construcción/Pico/Puesta a punto se irá completando conforme avancemos. Marca lo completado y anota RPE/sensaciones en la pestaña Semanas — eso es lo que se usa para ajustar la carga.
+    <div id="storage-mode-note" style="margin-top:8px;"></div>
+  </div>
+
+</div>
+<div class="save-indicator" id="save-ind">Guardado ✓</div>
+
+<div class="modal-overlay" id="day-modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" id="modal-close">×</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+const DAY_NAMES = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+function addDays(date, n){ const d=new Date(date); d.setDate(d.getDate()+n); return d; }
+function fmt(date){ return `${date.getDate()} ${MONTHS[date.getMonth()]}`; }
+function iso(date){ return date.toISOString().slice(0,10); }
+function rangeStr(start, days){ const end = addDays(start, days-1); return `${fmt(start)} – ${fmt(end)}`; }
+
+const RACE_DATE = new Date(2026,10,22);
+const PLAN_START = new Date(2026,7,3);
+const PREPLAN_START = new Date(2026,5,22);
+const BUILD_START = addDays(PLAN_START, 6*7);
+const PEAK_START = addDays(BUILD_START, 5*7);
+const TAPER_START = addDays(PEAK_START, 3*7);
+
+// ---------- DATA: BASE BLOCK (fully detailed) ----------
+const baseWeeks = [
+{ focus:'Semana 1/6 — Fundamentos', days:[
+  {type:'strength', tag:'FUERZA', title:'Deadlift EMOM + AMRAP', items:['Calentamiento: 1km ski erg + 10 muscle-ups + 10 hang cleans + 10 push press + 30s handstand hold + 6 burpees over the bar + 10 deadlifts ligeros','Fuerza: EMOM 12 min (6 rondas) de 4 deadlift touch-and-go — progresión 135lb → 175lb (últimas 2 rondas)','WOD: AMRAP 15 min — 10 power cleans (85lb) + 5 burpees over the bar + 10 HSTPU + 5 burpees over the bar']},
+  {type:'strength', tag:'FUERZA + SKI', title:'Fuerza B + técnica ski erg', items:['Goblet squat o step-up 3×10 (sustituye RDL — descanso a la cadena posterior tras el peso muerto pesado de ayer)','Farmer carry ligero 3×30m @2×16-18kg (agarre ya trabajado ayer)','Remo horizontal 3×10','Ski erg técnica 6×250m (desc 1 min) — foco enganche de cadera','Dead hang 2×20-30s (reducido)', '⚡ Ajustado tras tu sesión real del lunes (deadlift EMOM 135-175lb + AMRAP con grip). Nota: sentiste el peso ligero para un objetivo de 65-75% — posible indicador de que tu 1RM real de deadlift está por encima de los 90kg de baseline. Lo revisamos en el test de la Semana 6.']},
+  {type:'run', tag:'RUN', title:'Intervalos', items:['Calentamiento 15\'','8×400m @3:55-4:05/km, desc 90\" trote suave','Vuelta a la calma 10\'']},
+  {type:'cond', tag:'COND', title:'Condicionamiento aeróbico', items:['4 rondas: 500m row moderado + 10 burpee broad jump + 15 wall ball (6kg) + 400m carrera suave','Ritmo conversacional — foco técnica, no velocidad']},
+  {type:'racesim', tag:'RACE-SIM', title:'Compromiso carrera (corto)', items:['2 rondas: 1km run ritmo moderado-duro + sandbag lunges 50m + wall ball 20 reps (6kg)']},
+  {type:'rest', tag:'DESCANSO', title:'Descanso', items:['Movilidad o yoga ligero opcional']},
+  {type:'run', tag:'LONG RUN', title:'Z2', items:['40-45\' continuo @6:00-6:15/km']},
+]},
+{ focus:'Semana 2/6 — Progresión', days:[
+  {type:'strength', tag:'FUERZA', title:'Fuerza A', items:['Back Squat 4×6 @68kg (RPE 7-8)','Press banca 3×8 @42kg','Búlgara excéntrica 3×8/pierna','Pallof press 3×12/lado']},
+  {type:'strength', tag:'FUERZA + SKI', title:'Fuerza B + técnica ski erg', items:['RDL 3×8 @52-55kg','Farmer carry 4×45m @2×20kg','Remo horizontal 3×10','Ski erg técnica 6×300m','Dead hang 3×35s']},
+  {type:'run', tag:'RUN', title:'Intervalos', items:['Calentamiento 15\'','8×400m @3:50-3:58/km, desc 75\"','Vuelta a la calma 10\'']},
+  {type:'cond', tag:'COND', title:'Condicionamiento aeróbico', items:['4 rondas: 500m row + 12 burpee broad jump + 15 wall ball + 500m run suave']},
+  {type:'racesim', tag:'RACE-SIM', title:'Compromiso carrera', items:['2-3 rondas: 1km run + sandbag lunges 60m + wall ball 25 reps']},
+  {type:'rest', tag:'DESCANSO', title:'Descanso', items:['Movilidad o yoga ligero opcional']},
+  {type:'run', tag:'LONG RUN', title:'Z2', items:['45-50\' continuo @6:00-6:10/km']},
+]},
+{ focus:'Semana 3/6 — Introducción sled', days:[
+  {type:'strength', tag:'FUERZA', title:'Fuerza A', items:['Back Squat 4×5 @72kg (RPE 8)','Press banca 3×6 @44kg','Búlgara excéntrica 3×10/pierna','Pallof press 3×15/lado']},
+  {type:'strength', tag:'FUERZA + SLED', title:'Fuerza B + sled técnica', items:['RDL 3×6 @57kg','Sled push/pull — introducción técnica, 4×15m carga ligera','Ski erg 5×350m, ritmo algo más rápido','Dead hang 3×40s']},
+  {type:'run', tag:'RUN', title:'Tempo run', items:['Calentamiento 15\'','Tempo 20\' @5:20-5:30/km (cambio de estímulo respecto a semanas previas)','Vuelta a la calma 10\'']},
+  {type:'cond', tag:'COND', title:'Condicionamiento aeróbico', items:['4 rondas: 500m row + sled push/pull 15m + 15 wall ball + 10 burpee broad jump + 400m run', '⚡ Desde el 21 ago: Garmin disponible — empieza a registrar FC real en tus Z2.']},
+  {type:'racesim', tag:'RACE-SIM', title:'Compromiso carrera', items:['2-3 rondas: 1km run + sled push/pull 20m + wall ball 25 reps']},
+  {type:'rest', tag:'DESCANSO', title:'Descanso', items:['Movilidad o yoga ligero opcional']},
+  {type:'run', tag:'LONG RUN', title:'Z2', items:['50\' continuo @6:00-6:10/km']},
+]},
+{ focus:'Semana 4/6 — Descarga', days:[
+  {type:'strength', tag:'FUERZA', title:'Fuerza A (ligera)', items:['Back Squat 3×5 @60kg','Press banca 3×6 @38kg','Búlgara sin excéntrico extra — solo técnica','Pallof press 2×12/lado']},
+  {type:'strength', tag:'FUERZA (ligera)', title:'Fuerza B (ligera)', items:['RDL 2×8 @45kg','Farmer carry 3×40m @16kg','Ski erg técnica suave 4×250m']},
+  {type:'run', tag:'RUN FÁCIL', title:'Carrera fácil', items:['25\' continuo conversacional — sin series esta semana']},
+  {type:'cond', tag:'COND (ligero)', title:'Condicionamiento suave', items:['25-30\' row/ski erg/wall ball a ritmo muy cómodo, sin sled']},
+  {type:'rest', tag:'OPCIONAL', title:'Sesión opcional muy ligera', items:['O descanso extra — según cómo te sientas esta semana']},
+  {type:'rest', tag:'DESCANSO', title:'Descanso', items:['Semana de descarga: bajamos volumen ~35%. Es parte del plan, no pereza.']},
+  {type:'run', tag:'LONG RUN', title:'Z2 (corto)', items:['35\' fácil']},
+]},
+{ focus:'Semana 5/6 — Retoma progresión', days:[
+  {type:'strength', tag:'FUERZA', title:'Fuerza A', items:['Back Squat 4×5 @75kg','Press banca 3×6 @45kg','Búlgara excéntrica 3×10/pierna','Pallof press 3×15/lado']},
+  {type:'strength', tag:'FUERZA + SLED', title:'Fuerza B + sled', items:['RDL 3×6 @60kg','Sled push/pull 4×20m, carga creciente','Ski erg 6×400m','Dead hang 3×40-45s']},
+  {type:'run', tag:'RUN', title:'Intervalos', items:['Calentamiento 15\'','6×600m @4:00-4:10/km, desc 2\' trote','Vuelta a la calma 10\'']},
+  {type:'cond', tag:'COND', title:'Condicionamiento aeróbico', items:['4-5 rondas: 500m row + sled push/pull 20m + wall ball 20 + burpee broad jump 12 + 400m run']},
+  {type:'racesim', tag:'RACE-SIM', title:'Compromiso carrera', items:['3 rondas: 1km run + sled push/pull 25m + wall ball 25 + farmer carry 40m']},
+  {type:'rest', tag:'DESCANSO', title:'Descanso', items:['Movilidad o yoga ligero opcional']},
+  {type:'run', tag:'LONG RUN', title:'Z2', items:['55\' continuo @6:00-6:10/km']},
+]},
+{ focus:'Semana 6/6 — Test / cierre de bloque', days:[
+  {type:'strength', tag:'MANTENIM.', title:'Mantenimiento ligero', items:['Back Squat 3×5 @65kg — técnica, sin subir carga']},
+  {type:'strength', tag:'MANTENIM.', title:'Activación + sled técnica', items:['Movilidad + activación general','Sled técnica suave 3×15m']},
+  {type:'test', tag:'TEST', title:'Running + Ski erg', items:['1km time trial a máximo esfuerzo','Ski erg 500m a máximo esfuerzo (con descanso entre ambos)']},
+  {type:'test', tag:'TEST', title:'Sled + Wall ball', items:['Sled push 50m @ carga Open (102kg) cronometrado','Sled pull 50m @78kg cronometrado','Wall ball 4kg — máx reps sin parar']},
+  {type:'test', tag:'TEST', title:'Carry + Burpee broad jump', items:['Farmer carry 2×16kg — máx distancia/tiempo sin soltar','Burpee broad jump 20 reps por tiempo']},
+  {type:'rest', tag:'DESCANSO', title:'Descanso', items:[]},
+  {type:'run', tag:'Z2 SUAVE', title:'Recuperación activa', items:['30\' suave — antes de arrancar Build']},
+]},
+];
+
+const buildWeeks = [
+  'Introducir "compromised running" real (correr justo después de estación, a ritmo de carrera) + sled a carga completa de Open',
+  'Progresión de intervalos a ritmo objetivo de carrera + primera simulación parcial (4-5 estaciones)',
+  'Pico de volumen del bloque + resistencia de agarre bajo fatiga acumulada',
+  'Mantener intensidad, pequeño ajuste de volumen (mini-descarga)',
+  'Simulación de medio-HYROX completo (4 estaciones + running correspondiente)',
+];
+const peakWeeks = [
+  'Primer simulacro completo de HYROX (8 estaciones + running, ritmo controlado, no máximo)',
+  'Ajustes finos de pacing según el simulacro — segunda simulación a ritmo objetivo real',
+  'Última carga fuerte antes de bajar volumen — pico de forma',
+];
+const taperWeeks = [
+  'Bajada de volumen ~40%. Intensidad puntual, movilidad y sueño priorizados',
+  'Bajada de volumen ~60%. Activaciones cortas, logística de viaje a Dallas — domingo 22 nov: CARRERA',
+];
+
+const preplanWeeks = [
+  { txt:'Patrón habitual: CrossFit 3-4 días + running 1-2 días (5K/10K).' },
+  { txt:'Patrón habitual: CrossFit 3-4 días + running 1-2 días. Ergs (ski/row) y running incluidos en WODs del box; walking lunges y burpees (no específicos de broad jump).' },
+  { txt:'Patrón habitual: CrossFit 3-4 días + running 1-2 días.' },
+  { txt:'Patrón habitual: CrossFit 3-4 días + running 1-2 días.' },
+  { txt:'Patrón habitual: CrossFit 3-4 días + running 1-2 días.' },
+  { txt:'Lunes CrossFit (clase + ab finisher + 2km run), martes descanso, miércoles CrossFit, jueves descanso, viernes CrossFit (día duro, coincidió con la regla, RPE 8), sábado descanso, domingo long run 10km Z2 @6:19/km. Buena gestión de la carga en semana de menstruación.' },
+];
+
+let STORE = { logs:{}, preplanNotes:{}, prs:[], overrides:{} };
+let STORAGE_MODE = 'none'; // 'claude' | 'local' | 'none'
+
+function hasClaudeStorage(){
+  return typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function';
+}
+
+async function storageGet(key){
+  if(hasClaudeStorage()){
+    try{ const r = await window.storage.get(key); STORAGE_MODE='claude'; return r; }
+    catch(e){ /* fall through to local */ }
+  }
+  try{
+    const raw = localStorage.getItem(key);
+    STORAGE_MODE = 'local';
+    return raw!=null ? {key, value:raw} : null;
+  }catch(e){ STORAGE_MODE='none'; return null; }
+}
+
+async function storageSet(key, value){
+  if(hasClaudeStorage()){
+    try{ const r = await window.storage.set(key, value); STORAGE_MODE='claude'; return r; }
+    catch(e){ /* fall through to local */ }
+  }
+  try{
+    localStorage.setItem(key, value);
+    STORAGE_MODE = 'local';
+    return {key, value};
+  }catch(e){ STORAGE_MODE='none'; return null; }
+}
+
+async function loadStore(){
+  try{
+    const res = await storageGet('hyrox-data');
+    if(res && res.value) STORE = JSON.parse(res.value);
+  }catch(e){ /* no data yet */ }
+  if(!STORE.logs) STORE.logs = {};
+  if(!STORE.preplanNotes) STORE.preplanNotes = {};
+  if(!STORE.prs) STORE.prs = [];
+  if(!STORE.overrides) STORE.overrides = {};
+}
+let saveTimeout;
+function persist(){
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async ()=>{
+    const result = await storageSet('hyrox-data', JSON.stringify(STORE));
+    const ind = document.getElementById('save-ind');
+    if(result){
+      ind.textContent = STORAGE_MODE==='local' ? 'Guardado en este dispositivo ✓' : 'Guardado ✓';
+      ind.classList.remove('save-error');
+    } else {
+      ind.textContent = 'No se pudo guardar ⚠';
+      ind.classList.add('save-error');
+    }
+    ind.classList.add('show');
+    setTimeout(()=>ind.classList.remove('show'), 1600);
+  }, 300);
+}
+
+function renderCountdown(){
+  const today = new Date();
+  const diff = Math.ceil((RACE_DATE - today) / 86400000);
+  document.getElementById('countdown-num').textContent = (diff>=0?diff:0);
+  let phase = 'CIMIENTOS';
+  if(today >= PLAN_START && today < BUILD_START) phase='BASE';
+  else if(today >= BUILD_START && today < PEAK_START) phase='CONSTRUCCIÓN';
+  else if(today >= PEAK_START && today < TAPER_START) phase='PICO';
+  else if(today >= TAPER_START) phase='PUESTA A PUNTO';
+  document.getElementById('phase-tag').textContent = 'Fase actual: ' + phase;
+}
+
+function renderRoute(){
+  const today = new Date();
+  const segs = [
+    {label:'CIMIENTOS', start:PREPLAN_START, end:PLAN_START},
+    {label:'BASE', start:PLAN_START, end:BUILD_START},
+    {label:'CONSTRUCCIÓN', start:BUILD_START, end:PEAK_START},
+    {label:'PICO', start:PEAK_START, end:TAPER_START},
+    {label:'PUESTA A PUNTO', start:TAPER_START, end:addDays(RACE_DATE,1)},
+  ];
+  const el = document.getElementById('route');
+  el.innerHTML = segs.map(s=>{
+    let cls='upcoming', pct=0;
+    if(today >= s.end){ cls='done'; pct=100; }
+    else if(today >= s.start && today < s.end){ cls='current'; pct = Math.round((today-s.start)/(s.end-s.start)*100); }
+    return `<div class="route-seg ${cls}">${cls==='current'?'<div class="runner">🏃‍♀️</div>':''}<div class="bar"><div class="fill" style="width:${pct}%"></div></div><div class="route-label">${s.label}</div></div>`;
+  }).join('');
+}
+
+function dayLogControls(dateIso){
+  const log = STORE.logs[dateIso] || {done:false, rpe:'', notes:''};
+  return `
+  <div class="log" data-date="${dateIso}">
+    <label><input type="checkbox" class="log-done" ${log.done?'checked':''}> Hecho</label>
+    <label>RPE
+      <select class="log-rpe">
+        <option value="">–</option>
+        ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}" ${String(log.rpe)===String(n)?'selected':''}>${n}</option>`).join('')}
+      </select>
+    </label>
+    <input type="text" class="log-notes" placeholder="Notas / sensaciones..." value="${(log.notes||'').replace(/"/g,'&quot;')}">
+  </div>`;
+}
+
+function attachLogHandlers(container){
+  container.querySelectorAll('.log').forEach(logEl=>{
+    const date = logEl.dataset.date;
+    const doneEl = logEl.querySelector('.log-done');
+    const rpeEl = logEl.querySelector('.log-rpe');
+    const notesEl = logEl.querySelector('.log-notes');
+    function update(){
+      const log = { done: doneEl.checked, rpe: rpeEl.value, notes: notesEl.value };
+      STORE.logs[date] = log;
+      persist();
+      renderClosedWeeks();
+      syncLogControls(date, log, logEl);
+    }
+    doneEl.addEventListener('change', update);
+    rpeEl.addEventListener('change', update);
+    notesEl.addEventListener('input', update);
+  });
+}
+
+function syncLogControls(dateIso, log, exceptEl){
+  document.querySelectorAll(`.log[data-date="${dateIso}"]`).forEach(el=>{
+    if(el===exceptEl) return;
+    el.querySelector('.log-done').checked = log.done;
+    el.querySelector('.log-rpe').value = log.rpe;
+    el.querySelector('.log-notes').value = log.notes;
+  });
+  const cell = document.querySelector(`.cal-cell[data-date="${dateIso}"]`);
+  if(cell){
+    let chk = cell.querySelector('.cd-check');
+    if(log.done && !chk){
+      chk = document.createElement('span'); chk.className='cd-check'; chk.textContent='✓';
+      cell.appendChild(chk);
+    } else if(!log.done && chk){ chk.remove(); }
+  }
+}
+
+function renderCimientosWeeks(){
+  const container = document.getElementById('cimientos-weeks');
+  container.innerHTML = preplanWeeks.map((w, wi)=>{
+    const weekStart = addDays(PREPLAN_START, wi*7);
+    const daysHtml = [];
+    for(let di=0; di<7; di++){
+      const date = addDays(weekStart, di);
+      const dateIso = iso(date);
+      const info = getDayInfo(date);
+      if(info.level==='day'){
+        const day = info.day;
+        const noteItems = day.items.filter(i=>i.startsWith('⚡'));
+        const normalItems = day.items.filter(i=>!i.startsWith('⚡'));
+        daysHtml.push(`<div class="day">
+          <div class="day-head">
+            <span class="tag ${day.type}">${day.tag}</span>
+            <span class="day-name">${DAY_NAMES[di]}</span>
+            <span class="day-date">${fmt(date)}</span>
+            ${info.edited?'<span class="mono" style="font-size:10px; color:var(--mute);">✎ editado</span>':''}
+          </div>
+          <div class="day-title">${day.title}</div>
+          ${normalItems.length? `<ul>${normalItems.map(i=>`<li>${i}</li>`).join('')}</ul>` : ''}
+          ${noteItems.map(i=>`<div class="note">${i.replace('⚡ ','')}</div>`).join('')}
+          <button class="btn-edit" data-edit-date="${dateIso}" style="margin-bottom:8px;">✎ Editar entrenamiento</button>
+          ${dayLogControls(dateIso)}
+        </div>`);
+      } else {
+        daysHtml.push(`<div class="day">
+          <div class="day-head">
+            <span class="tag" style="background:var(--mute);">SIN DETALLE</span>
+            <span class="day-name">${DAY_NAMES[di]}</span>
+            <span class="day-date">${fmt(date)}</span>
+          </div>
+          <div class="day-title" style="color:var(--mute); font-style:italic; font-weight:500;">Patrón general de la semana — sin sesión específica registrada</div>
+          <button class="btn-edit" data-edit-date="${dateIso}" style="margin-bottom:8px;">✎ Añadir detalle de este día</button>
+          ${dayLogControls(dateIso)}
+        </div>`);
+      }
+    }
+    return `<div class="week" data-idx="cim-${wi}">
+      <div class="week-head" onclick="toggleWeek(this)">
+        <span class="wtitle">Semana ${wi+1} — Cimientos</span>
+        <span class="wdates mono">${rangeStr(weekStart,7)} <span class="chev">▸</span></span>
+      </div>
+      <div class="week-body">${daysHtml.join('')}</div>
+    </div>`;
+  }).join('');
+  attachLogHandlers(container);
+  container.querySelectorAll('[data-edit-date]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openDayModal(btn.dataset.editDate, true));
+  });
+}
+
+function renderBaseWeeks(){
+  const container = document.getElementById('base-weeks');
+  container.innerHTML = baseWeeks.map((week, wi)=>{
+    const weekStart = addDays(PLAN_START, wi*7);
+    const daysHtml = week.days.map((rawDay, di)=>{
+      const date = addDays(weekStart, di);
+      const dateIso = iso(date);
+      const info = getDayInfo(date);
+      const day = info.day;
+      const noteItems = day.items.filter(i=>i.startsWith('⚡'));
+      const normalItems = day.items.filter(i=>!i.startsWith('⚡'));
+      return `<div class="day">
+        <div class="day-head">
+          <span class="tag ${day.type}">${day.tag}</span>
+          <span class="day-name">${DAY_NAMES[di]}</span>
+          <span class="day-date">${fmt(date)}</span>
+          ${info.edited?'<span class="mono" style="font-size:10px; color:var(--mute);">✎ editado</span>':''}
+        </div>
+        <div class="day-title">${day.title}</div>
+        ${normalItems.length? `<ul>${normalItems.map(i=>`<li>${i}</li>`).join('')}</ul>` : ''}
+        ${noteItems.map(i=>`<div class="note">${i.replace('⚡ ','')}</div>`).join('')}
+        <button class="btn-edit" data-edit-date="${dateIso}" style="margin-bottom:8px;">✎ Editar entrenamiento</button>
+        ${dayLogControls(dateIso)}
+      </div>`;
+    }).join('');
+    return `<div class="week" data-idx="base-${wi}">
+      <div class="week-head" onclick="toggleWeek(this)">
+        <span class="wtitle">${week.focus}</span>
+        <span class="wdates mono">${rangeStr(weekStart,7)} <span class="chev">▸</span></span>
+      </div>
+      <div class="week-body">${daysHtml}</div>
+    </div>`;
+  }).join('');
+  attachLogHandlers(container);
+  container.querySelectorAll('[data-edit-date]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openDayModal(btn.dataset.editDate, true));
+  });
+}
+
+function renderFutureBlock(containerId, weeksArr, blockStart){
+  const container = document.getElementById(containerId);
+  container.innerHTML = `<div class="week open"><div class="week-body" style="padding-top:14px;">` +
+    weeksArr.map((txt,i)=>{
+      const weekStart = addDays(blockStart, i*7);
+      return `<div class="future-week">
+        <div class="fw-tag">${rangeStr(weekStart,7)}</div>
+        <div class="fw-txt">${txt}</div>
+      </div>`;
+    }).join('') + `</div></div>`;
+}
+
+function renderPreplan(){
+  const container = document.getElementById('preplan');
+  container.innerHTML = preplanWeeks.map((w, wi)=>{
+    const weekStart = addDays(PREPLAN_START, wi*7);
+    const note = STORE.preplanNotes[wi] || '';
+    const dayEntries = [];
+    for(let di=0; di<7; di++){
+      const date = addDays(weekStart, di);
+      const dISO = iso(date);
+      const info = getDayInfo(date);
+      if(info.level==='day') dayEntries.push({date, dISO, day:info.day, edited:info.edited});
+    }
+    const editedHtml = dayEntries.length ? `
+      <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
+        <div style="font-size:11px; color:var(--mute); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Detalle día a día</div>
+        ${dayEntries.map(({date,dISO,day,edited})=>`
+          <div class="result-row">
+            <span class="tag ${day.type}" style="min-width:76px;text-align:center;">${day.tag}</span>
+            <span class="mono" style="width:56px;">${fmt(date)}</span>
+            <span class="result-notes">${day.title}${edited?' <span class="mono" style="color:var(--mute);">(editado)</span>':''}</span>
+            <button class="btn-edit" data-edit-date="${dISO}" style="margin-left:auto;">✎</button>
+          </div>`).join('')}
+      </div>` : '';
+    return `<div class="preweek">
+      <div class="ptitle"><span>Semana ${wi+1}</span><span class="pdates">${rangeStr(weekStart,7)}</span></div>
+      <div class="pbody">${w.txt}</div>
+      <textarea class="preplan-note" data-idx="${wi}" placeholder="Añade detalle si lo recuerdas...">${note}</textarea>
+      ${editedHtml}
+    </div>`;
+  }).join('');
+  container.querySelectorAll('.preplan-note').forEach(ta=>{
+    ta.addEventListener('input', ()=>{
+      STORE.preplanNotes[ta.dataset.idx] = ta.value;
+      persist();
+    });
+  });
+  container.querySelectorAll('[data-edit-date]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openDayModal(btn.dataset.editDate, true));
+  });
+}
+
+function computeWeekStats(days, weekStart){
+  let completed=0, totalTrackable=0, rpeSum=0, rpeCount=0;
+  const rows = days.map((day,di)=>{
+    const date = addDays(weekStart, di);
+    const dISO = iso(date);
+    const log = STORE.logs[dISO];
+    if(day.type!=='rest'){ totalTrackable++; if(log && log.done) completed++; }
+    if(log && log.rpe){ rpeSum+=Number(log.rpe); rpeCount++; }
+    return {day, date, log};
+  });
+  const avgRpe = rpeCount? (rpeSum/rpeCount).toFixed(1): null;
+  return {rows, completed, totalTrackable, avgRpe};
+}
+
+function renderClosedWeeks(){
+  const today = new Date();
+  const container = document.getElementById('closed-weeks');
+  const closed = [];
+  baseWeeks.forEach((week, wi)=>{
+    const weekStart = addDays(PLAN_START, wi*7);
+    const weekEnd = addDays(weekStart,7);
+    if(weekEnd <= today) closed.push({week, weekStart, stats:computeWeekStats(week.days, weekStart)});
+  });
+  if(closed.length===0){
+    container.innerHTML = `<div class="empty-note">Todavía no hay semanas del bloque estructurado cerradas — aparecerán aquí conforme las vayas completando en la pestaña Semanas.</div>`;
+    return;
+  }
+  container.innerHTML = closed.map(({week, weekStart, stats})=>{
+    const rowsHtml = stats.rows.map(({day,date,log})=>{
+      const isRest = day.type==='rest';
+      const status = isRest ? '—' : (log && log.done ? '✓' : '·');
+      const statusClass = isRest ? '' : (log && log.done ? 'ok' : 'no');
+      const rpe = log && log.rpe ? log.rpe : '–';
+      const notes = log && log.notes ? log.notes : '';
+      return `<div class="result-row">
+        <span class="tag ${day.type}" style="min-width:76px;text-align:center;">${day.tag}</span>
+        <span class="mono" style="width:56px;">${fmt(date)}</span>
+        <span class="result-status ${statusClass}">${status}</span>
+        <span class="mono" style="width:34px;">RPE ${rpe}</span>
+        <span class="result-notes">${notes}</span>
+      </div>`;
+    }).join('');
+    return `<div class="week">
+      <div class="week-head" onclick="toggleWeek(this)">
+        <span class="wtitle">${week.focus}</span>
+        <span class="wdates mono">${rangeStr(weekStart,7)} · ${stats.completed}/${stats.totalTrackable} ses.${stats.avgRpe?` · RPE ${stats.avgRpe}`:''} <span class="chev">▸</span></span>
+      </div>
+      <div class="week-body">${rowsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+const MONTHS_FULL = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const BLOCK_COLORS = {
+  'CIMIENTOS':'var(--block-cimientos)',
+  'CONSTRUCCIÓN':'var(--block-construccion)',
+  'PICO':'var(--block-pico)',
+  'PUESTA A PUNTO':'var(--block-puesta)',
+};
+let calCurrentMonth = null;
+
+// Placeholders for future day-by-day detail. When Construcción/Pico/Puesta a punto
+// get their exact sessions written (as we approach each one), populate these the
+// same way baseWeeks is structured. The reveal gate below means the calendar
+// preview stays at block-name level until the real date actually reaches that
+// block's start — regardless of when the detailed data was authored.
+let buildDays = null;
+let peakDays = null;
+let taperDays = null;
+
+function today0(){ const t = new Date(); t.setHours(0,0,0,0); return t; }
+
+// Detalle real día a día para semanas de Cimientos ya completadas (índice = semana-1).
+// Null = todavía sin detalle específico por día, solo resumen semanal.
+const preplanDays = [null, null, null, null, null, {
+  focus: 'Semana 6 — Cimientos (real)',
+  days: [
+    {type:'strength', tag:'FUERZA', title:'CrossFit', items:['Clase CrossFit','Ab finisher 10 min','2km Run']},
+    {type:'rest', tag:'DESCANSO', title:'Descanso', items:[]},
+    {type:'strength', tag:'FUERZA', title:'CrossFit', items:[]},
+    {type:'rest', tag:'DESCANSO', title:'Descanso', items:[]},
+    {type:'strength', tag:'FUERZA', title:'CrossFit', items:['⚡ Día duro — coincidió con la regla (RPE 8)']},
+    {type:'rest', tag:'DESCANSO', title:'Descanso', items:[]},
+    {type:'run', tag:'LONG RUN', title:'Long Run: 10 KM', items:['Z2 Long Run','10k','Pace: 6:19/km']},
+  ]
+}];
+
+function getDayInfoRaw(date){
+  if(date < PREPLAN_START || date >= addDays(RACE_DATE,1)) return null;
+  const now = today0();
+
+  if(date < PLAN_START){
+    const wi = Math.floor((date-PREPLAN_START)/(7*86400000));
+    if(!preplanWeeks[wi]) return null;
+    if(preplanDays[wi]){
+      const di = Math.floor((date-addDays(PREPLAN_START,wi*7))/86400000);
+      return {level:'day', block:'CIMIENTOS', weekLabel:preplanDays[wi].focus, day:preplanDays[wi].days[di]};
+    }
+    return {level:'week', block:'CIMIENTOS', weekLabel:`Semana ${wi+1}`, text:preplanWeeks[wi].txt};
+  }
+  if(date < BUILD_START){
+    const wi = Math.floor((date-PLAN_START)/(7*86400000));
+    const di = Math.floor((date-addDays(PLAN_START,wi*7))/86400000);
+    const week = baseWeeks[wi]; if(!week) return null;
+    return {level:'day', block:'BASE', weekLabel:week.focus, day:week.days[di]};
+  }
+  if(date < PEAK_START){
+    const wi = Math.floor((date-BUILD_START)/(7*86400000));
+    if(!buildWeeks[wi]) return null;
+    if(buildDays && buildDays[wi] && now >= BUILD_START){
+      const di = Math.floor((date-addDays(BUILD_START,wi*7))/86400000);
+      return {level:'day', block:'CONSTRUCCIÓN', weekLabel:buildDays[wi].focus, day:buildDays[wi].days[di]};
+    }
+    return {level:'week', block:'CONSTRUCCIÓN', weekLabel:`Semana ${wi+1}`, text:buildWeeks[wi]};
+  }
+  if(date < TAPER_START){
+    const wi = Math.floor((date-PEAK_START)/(7*86400000));
+    if(!peakWeeks[wi]) return null;
+    if(peakDays && peakDays[wi] && now >= PEAK_START){
+      const di = Math.floor((date-addDays(PEAK_START,wi*7))/86400000);
+      return {level:'day', block:'PICO', weekLabel:peakDays[wi].focus, day:peakDays[wi].days[di]};
+    }
+    return {level:'week', block:'PICO', weekLabel:`Semana ${wi+1}`, text:peakWeeks[wi]};
+  }
+  const wi = Math.floor((date-TAPER_START)/(7*86400000));
+  if(!taperWeeks[wi]) return null;
+  if(taperDays && taperDays[wi] && now >= TAPER_START){
+    const di = Math.floor((date-addDays(TAPER_START,wi*7))/86400000);
+    return {level:'day', block:'PUESTA A PUNTO', weekLabel:taperDays[wi].focus, day:taperDays[wi].days[di]};
+  }
+  return {level:'week', block:'PUESTA A PUNTO', weekLabel:`Semana ${wi+1}`, text:taperWeeks[wi]};
+}
+
+const TYPE_LABELS = {strength:'Fuerza', run:'Run', cond:'Condicionamiento', racesim:'Race-Sim', rest:'Descanso', test:'Test'};
+
+function getDayInfo(date){
+  const info = getDayInfoRaw(date);
+  if(!info) return null;
+  const dISO = iso(date);
+  const ov = STORE.overrides && STORE.overrides[dISO];
+  if(ov){
+    return {
+      level:'day',
+      block: info.block,
+      weekLabel: info.weekLabel || info.block,
+      day: { type: ov.type, tag: ov.tag, title: ov.title, items: ov.items },
+      edited: true
+    };
+  }
+  return info;
+}
+
+function renderCalendar(){
+  const label = document.getElementById('cal-month-label');
+  const monthName = MONTHS_FULL[calCurrentMonth.getMonth()];
+  label.textContent = monthName.charAt(0).toUpperCase()+monthName.slice(1) + ' ' + calCurrentMonth.getFullYear();
+
+  const firstOfMonth = new Date(calCurrentMonth.getFullYear(), calCurrentMonth.getMonth(), 1);
+  const lastOfMonth = new Date(calCurrentMonth.getFullYear(), calCurrentMonth.getMonth()+1, 0);
+  const startOffset = (firstOfMonth.getDay()+6)%7;
+  const totalDays = lastOfMonth.getDate();
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  let html = '';
+  for(let i=0;i<startOffset;i++) html += `<div class="cal-cell empty"></div>`;
+  for(let d=1; d<=totalDays; d++){
+    const date = new Date(calCurrentMonth.getFullYear(), calCurrentMonth.getMonth(), d);
+    const dISO = iso(date);
+    const info = getDayInfo(date);
+    const isToday = date.getTime()===today.getTime();
+    if(!info){
+      html += `<div class="cal-cell out-range"><span class="cd-num">${d}</span></div>`;
+      continue;
+    }
+    const log = STORE.logs[dISO];
+    const checkHtml = (log && log.done) ? `<span class="cd-check">✓</span>` : '';
+    let tagHtml, titleHtml;
+    if(info.level==='day'){
+      tagHtml = `<span class="cd-tag ${info.day.type}">${info.day.tag}</span>`;
+      titleHtml = `<span class="cd-title">${info.day.title}</span>`;
+    } else {
+      tagHtml = `<span class="cd-tag" style="background:${BLOCK_COLORS[info.block]};">${info.block}</span>`;
+      titleHtml = '';
+    }
+    html += `<div class="cal-cell ${info.level==='week'?'week-level':''} ${isToday?'is-today':''}" data-date="${dISO}">
+      <span class="cd-num">${d}</span>${checkHtml}${tagHtml}${titleHtml}
+    </div>`;
+  }
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = html;
+  grid.querySelectorAll('.cal-cell[data-date]').forEach(cell=>{
+    cell.addEventListener('click', ()=>openDayModal(cell.dataset.date));
+  });
+}
+
+function openDayModal(dISO, editMode){
+  const date = new Date(dISO+'T00:00:00');
+  const info = getDayInfo(date);
+  if(!info) return;
+  const dateLabel = `${DAY_NAMES[(date.getDay()+6)%7]} ${fmt(date)} ${date.getFullYear()}`;
+  const content = document.getElementById('modal-content');
+
+  if(editMode){
+    const current = info.level==='day'
+      ? { type:info.day.type, tag:info.day.tag, title:info.day.title, items:info.day.items.filter(i=>!i.startsWith('⚡')) }
+      : { type:'strength', tag:'FUERZA', title:info.weekLabel||'', items:[] };
+    const typeOptions = Object.keys(TYPE_LABELS).map(k=>`<option value="${k}" ${current.type===k?'selected':''}>${TYPE_LABELS[k]}</option>`).join('');
+    content.innerHTML = `
+      <div class="mono" style="font-size:12px; color:var(--mute); margin-bottom:10px;">${dateLabel} — editando</div>
+      <div class="edit-field"><label>Tipo</label><select id="edit-type">${typeOptions}</select></div>
+      <div class="edit-field"><label>Etiqueta corta</label><input type="text" id="edit-tag" value="${(current.tag||'').replace(/"/g,'&quot;')}"></div>
+      <div class="edit-field"><label>Título</label><input type="text" id="edit-title" value="${(current.title||'').replace(/"/g,'&quot;')}"></div>
+      <div class="edit-field"><label>Detalle (una línea por ejercicio)</label><textarea id="edit-items" rows="6">${current.items.join('\n')}</textarea></div>
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn-save" id="edit-save">Guardar</button>
+        <button class="btn-cancel" id="edit-cancel">Cancelar</button>
+      </div>
+    `;
+    document.getElementById('edit-save').addEventListener('click', ()=>{
+      const type = document.getElementById('edit-type').value;
+      const tag = document.getElementById('edit-tag').value.trim() || TYPE_LABELS[type].toUpperCase();
+      const title = document.getElementById('edit-title').value.trim() || 'Sesión';
+      const items = document.getElementById('edit-items').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      STORE.overrides[dISO] = { type, tag, title, items };
+      persist();
+      renderCalendar();
+      renderCimientosWeeks();
+      renderBaseWeeks();
+      renderPreplan();
+      openDayModal(dISO, false);
+    });
+    document.getElementById('edit-cancel').addEventListener('click', ()=> openDayModal(dISO, false));
+    document.getElementById('day-modal-overlay').classList.add('show');
+    return;
+  }
+
+  let body;
+  if(info.level==='day'){
+    const normalItems = info.day.items.filter(i=>!i.startsWith('⚡'));
+    const noteItems = info.day.items.filter(i=>i.startsWith('⚡'));
+    body = `
+      <div style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+        <span class="tag ${info.day.type}">${info.day.tag}</span>
+        ${info.edited?'<span class="mono" style="font-size:10px; color:var(--mute);">✎ editado por ti</span>':''}
+      </div>
+      <div class="day-title" style="font-size:17px;">${info.day.title}</div>
+      ${normalItems.length?`<ul>${normalItems.map(i=>`<li>${i}</li>`).join('')}</ul>`:''}
+      ${noteItems.map(i=>`<div class="note">${i.replace('⚡ ','')}</div>`).join('')}
+    `;
+  } else {
+    body = `
+      <div style="margin-bottom:8px;"><span class="tag" style="background:${BLOCK_COLORS[info.block]};">${info.block}</span></div>
+      <div class="day-title" style="font-size:17px;">${info.weekLabel}</div>
+      <p style="font-size:13.5px; color:var(--body-text); line-height:1.6; margin:6px 0;">${info.text}</p>
+      <p style="font-size:12px; color:var(--mute); font-style:italic; margin:0 0 10px;">Detalle día a día de este bloque aún por definir — se completará conforme nos acerquemos. Igualmente puedes editar y registrar aquí lo que hagas ese día.</p>
+    `;
+  }
+  const editBtnLabel = STORE.overrides[dISO] ? '✎ Editar de nuevo' : '✎ Editar entrenamiento';
+  const restoreBtn = STORE.overrides[dISO] ? `<button class="btn-cancel" id="restore-original">Restaurar original</button>` : '';
+  content.innerHTML = `<div class="mono" style="font-size:12px; color:var(--mute); margin-bottom:6px;">${dateLabel}</div>${body}
+    <div style="display:flex; gap:8px; margin:10px 0 4px;"><button class="btn-edit" id="open-edit">${editBtnLabel}</button>${restoreBtn}</div>
+    ${dayLogControls(dISO)}`;
+  attachLogHandlers(content);
+  document.getElementById('open-edit').addEventListener('click', ()=> openDayModal(dISO, true));
+  const restoreEl = document.getElementById('restore-original');
+  if(restoreEl){
+    restoreEl.addEventListener('click', ()=>{
+      delete STORE.overrides[dISO];
+      persist();
+      renderCalendar();
+      renderCimientosWeeks();
+      renderBaseWeeks();
+      renderPreplan();
+      openDayModal(dISO, false);
+    });
+  }
+  document.getElementById('day-modal-overlay').classList.add('show');
+}
+
+function closeDayModal(){
+  document.getElementById('day-modal-overlay').classList.remove('show');
+}
+
+function initCalendar(){
+  const today = new Date();
+  calCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  document.getElementById('cal-prev').addEventListener('click', ()=>{
+    calCurrentMonth = new Date(calCurrentMonth.getFullYear(), calCurrentMonth.getMonth()-1, 1);
+    renderCalendar();
+  });
+  document.getElementById('cal-next').addEventListener('click', ()=>{
+    calCurrentMonth = new Date(calCurrentMonth.getFullYear(), calCurrentMonth.getMonth()+1, 1);
+    renderCalendar();
+  });
+  document.getElementById('cal-today').addEventListener('click', ()=>{
+    const t = new Date();
+    calCurrentMonth = new Date(t.getFullYear(), t.getMonth(), 1);
+    renderCalendar();
+  });
+  document.getElementById('modal-close').addEventListener('click', closeDayModal);
+  document.getElementById('day-modal-overlay').addEventListener('click', (e)=>{
+    if(e.target.id==='day-modal-overlay') closeDayModal();
+  });
+  renderCalendar();
+}
+
+function renderBloques(){
+  const blocks = [
+    {name:'CIMIENTOS', start:PREPLAN_START, end:PLAN_START, desc:'Las 6 semanas de base autodirigida — lo que ya construiste por tu cuenta antes de que empezáramos a trabajar juntas. Sin esto, el bloque Base habría arrancado más atrás.', weeks: preplanWeeks.map((w,i)=>`Semana ${i+1} — ${w.txt}`)},
+    {name:'BASE', start:PLAN_START, end:BUILD_START, desc:'Motor aeróbico, fuerza general, técnica en ski erg / burpee broad jump, prehab de rodilla. Patrón 3:1 (progresión / descarga / progresión + test).', weeks: baseWeeks.map(w=>w.focus)},
+    {name:'CONSTRUCCIÓN', start:BUILD_START, end:PEAK_START, desc:'De capacidad general a rendimiento específico de carrera. Se calibra con los resultados del test de la Semana 6.', weeks: buildWeeks},
+    {name:'PICO', start:PEAK_START, end:TAPER_START, desc:'Simulacros de carrera completa y ejecución bajo fatiga real.', weeks: peakWeeks},
+    {name:'PUESTA A PUNTO', start:TAPER_START, end:addDays(RACE_DATE,1), desc:'Bajada de volumen, afinar, logística de viaje. Termina en carrera.', weeks: taperWeeks},
+  ];
+  document.getElementById('bloques-list').innerHTML = blocks.map(b=>{
+    const days = Math.round((b.end-b.start)/86400000);
+    return `<div class="block-card">
+      <div class="block-card-head"><h3>${b.name}</h3><span class="mono dates">${rangeStr(b.start, days)}</span></div>
+      <p class="section-desc" style="margin:6px 0 12px;">${b.desc}</p>
+      <ol class="block-weeks">${b.weeks.map(w=>`<li>${w}</li>`).join('')}</ol>
+    </div>`;
+  }).join('');
+}
+
+function renderPRs(){
+  const grid = document.getElementById('prs-custom');
+  if(STORE.prs.length===0){
+    grid.innerHTML = `<div class="empty-note">Aún no has añadido marcas nuevas — usa el formulario de arriba conforme progreses.</div>`;
+    return;
+  }
+  grid.innerHTML = STORE.prs.slice().reverse().map(pr=>`
+    <div class="baseline-card" data-id="${pr.id}">
+      <button class="pr-del" title="Eliminar">×</button>
+      <div class="lbl">${pr.name}</div>
+      <div class="val">${pr.value}</div>
+      <div class="pr-date">${pr.date}</div>
+    </div>`).join('');
+  grid.querySelectorAll('.pr-del').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.parentElement.dataset.id;
+      STORE.prs = STORE.prs.filter(p=>String(p.id)!==String(id));
+      persist();
+      renderPRs();
+    });
+  });
+}
+
+function toggleWeek(headEl){
+  headEl.parentElement.classList.toggle('open');
+}
+window.toggleWeek = toggleWeek;
+
+function initTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.hidden=true);
+      btn.classList.add('active');
+      document.getElementById('tab-'+btn.dataset.tab).hidden=false;
+      refreshTab(btn.dataset.tab);
+    });
+  });
+}
+
+function refreshTab(tab){
+  if(tab==='calendario') renderCalendar();
+  else if(tab==='semanas'){ renderCimientosWeeks(); renderBaseWeeks(); }
+  else if(tab==='resultados'){ renderPreplan(); renderClosedWeeks(); }
+  else if(tab==='bloques') renderBloques();
+  else if(tab==='dashboard') renderPRs();
+}
+
+function initPrForm(){
+  document.getElementById('pr-date').value = iso(new Date());
+  document.getElementById('pr-form').addEventListener('submit', e=>{
+    e.preventDefault();
+    const name = document.getElementById('pr-name').value.trim();
+    const value = document.getElementById('pr-value').value.trim();
+    const date = document.getElementById('pr-date').value || iso(new Date());
+    if(!name || !value) return;
+    STORE.prs.push({id:Date.now(), name, value, date});
+    persist();
+    renderPRs();
+    e.target.reset();
+    document.getElementById('pr-date').value = iso(new Date());
+  });
+}
+
+function buildExportSummary(){
+  const lines = [];
+  lines.push('=== REGISTRO HYROX PREP — SABELA ===');
+  lines.push('Generado: ' + new Date().toLocaleString('es-ES'));
+  lines.push('');
+
+  const logDates = Object.keys(STORE.logs).sort();
+  lines.push('--- ENTRENAMIENTOS REGISTRADOS (Hecho / RPE / Notas) ---');
+  if(logDates.length===0){ lines.push('(ninguno todavía)'); }
+  logDates.forEach(dISO=>{
+    const log = STORE.logs[dISO];
+    const date = new Date(dISO+'T00:00:00');
+    const dayName = DAY_NAMES[(date.getDay()+6)%7];
+    lines.push(`${dISO} (${dayName}) — Hecho: ${log.done?'Sí':'No'} — RPE: ${log.rpe||'-'} — Notas: ${log.notes||'-'}`);
+  });
+  lines.push('');
+
+  const ovDates = Object.keys(STORE.overrides||{}).sort();
+  lines.push('--- ENTRENAMIENTOS EDITADOS POR TI (contenido cambiado) ---');
+  if(ovDates.length===0){ lines.push('(ninguno todavía)'); }
+  ovDates.forEach(dISO=>{
+    const ov = STORE.overrides[dISO];
+    const date = new Date(dISO+'T00:00:00');
+    const dayName = DAY_NAMES[(date.getDay()+6)%7];
+    lines.push(`${dISO} (${dayName}) [${TYPE_LABELS[ov.type]||ov.type}] ${ov.title} — ${ov.items.join(' | ')}`);
+  });
+  lines.push('');
+
+  lines.push('--- MARCAS / PRs AÑADIDOS ---');
+  if(!STORE.prs || STORE.prs.length===0){ lines.push('(ninguno todavía)'); }
+  else STORE.prs.forEach(pr=> lines.push(`${pr.date} — ${pr.name}: ${pr.value}`));
+  lines.push('');
+
+  lines.push('--- NOTAS DE CIMIENTOS ---');
+  const noteKeys = Object.keys(STORE.preplanNotes||{}).filter(k=>STORE.preplanNotes[k]);
+  if(noteKeys.length===0){ lines.push('(ninguna todavía)'); }
+  else noteKeys.forEach(k=> lines.push(`Semana ${Number(k)+1}: ${STORE.preplanNotes[k]}`));
+
+  return lines.join('\n');
+}
+
+function initExport(){
+  document.getElementById('export-btn').addEventListener('click', ()=>{
+    const text = buildExportSummary();
+    const out = document.getElementById('export-output');
+    out.value = text;
+    out.style.display = 'block';
+    document.getElementById('copy-btn').style.display = 'inline-block';
+    document.getElementById('copy-status').textContent = '';
+  });
+  document.getElementById('copy-btn').addEventListener('click', async ()=>{
+    const out = document.getElementById('export-output');
+    const status = document.getElementById('copy-status');
+    try{
+      await navigator.clipboard.writeText(out.value);
+      status.textContent = 'Copiado ✓ — ya puedes pegarlo en el chat.';
+    }catch(e){
+      out.focus(); out.select();
+      status.textContent = 'No se pudo copiar automáticamente — el texto ya está seleccionado, usa copiar manualmente.';
+    }
+  });
+}
+
+async function init(){
+  await loadStore();
+  const modeNote = document.getElementById('storage-mode-note');
+  if(STORAGE_MODE==='claude'){
+    modeNote.textContent = '💾 Guardando en tu cuenta de Claude — visible allí donde abras este archivo a través del chat.';
+  } else if(STORAGE_MODE==='local'){
+    modeNote.textContent = '💾 Guardando localmente en este navegador/dispositivo. No se sincroniza con otros dispositivos ni navegadores — si abres el archivo en otro móvil u ordenador, empezará vacío ahí.';
+  } else {
+    modeNote.textContent = '⚠ No se ha podido activar el guardado en este navegador — tus cambios no se conservarán al cerrar.';
+  }
+  renderCountdown();
+  renderRoute();
+  document.getElementById('preplan-dates').textContent = rangeStr(PREPLAN_START, 42);
+  document.getElementById('cimientos-dates').textContent = rangeStr(PREPLAN_START, 42);
+  document.getElementById('base-dates').textContent = rangeStr(PLAN_START, 42);
+  document.getElementById('build-dates').textContent = rangeStr(BUILD_START, 35);
+  document.getElementById('peak-dates').textContent = rangeStr(PEAK_START, 21);
+  document.getElementById('taper-dates').textContent = rangeStr(TAPER_START, 14);
+  renderPreplan();
+  renderCimientosWeeks();
+  renderBaseWeeks();
+  renderFutureBlock('build-weeks', buildWeeks, BUILD_START);
+  renderFutureBlock('peak-weeks', peakWeeks, PEAK_START);
+  renderFutureBlock('taper-weeks', taperWeeks, TAPER_START);
+  renderClosedWeeks();
+  renderBloques();
+  renderPRs();
+  initTabs();
+  initPrForm();
+  initExport();
+  initCalendar();
+  const today = new Date();
+  if(today >= PLAN_START && today < BUILD_START){
+    const wi = Math.floor((today - PLAN_START)/(7*86400000));
+    const el = document.querySelector(`.week[data-idx="base-${wi}"]`);
+    if(el) el.classList.add('open');
+  }
+}
+init();
+</script>
+</body>
+</html>

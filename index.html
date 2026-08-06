@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -397,6 +398,7 @@
   <div class="footnote">
     Desde el 21 de agosto hay datos de Garmin disponibles — a partir de esa fecha las zonas Z2 pueden calibrarse por FC real. El detalle día a día de Construcción/Pico/Puesta a punto se irá completando conforme avancemos. Marca lo completado y anota RPE/sensaciones en la pestaña Semanas — eso es lo que se usa para ajustar la carga.
     <div id="storage-mode-note" style="margin-top:8px;"></div>
+    <button id="sync-btn" style="margin-top:8px; background:none; border:1px solid var(--border); border-radius:100px; padding:5px 14px; font-size:12px; color:var(--mute); cursor:pointer;">🔄 Sincronizar ahora</button>
   </div>
 
 </div>
@@ -429,8 +431,8 @@ const TAPER_START = addDays(PEAK_START, 3*7);
 const baseWeeks = [
 { focus:'Semana 1/6 — Fundamentos', days:[
   {type:'strength', tag:'FUERZA', title:'Deadlift EMOM + AMRAP', items:['Calentamiento: 1km ski erg + 10 muscle-ups + 10 hang cleans + 10 push press + 30s handstand hold + 6 burpees over the bar + 10 deadlifts ligeros','Fuerza: EMOM 12 min (6 rondas) de 4 deadlift touch-and-go — progresión 135lb → 175lb (últimas 2 rondas)','WOD: AMRAP 15 min — 10 power cleans (85lb) + 5 burpees over the bar + 10 HSTPU + 5 burpees over the bar']},
-  {type:'strength', tag:'FUERZA + SKI', title:'Fuerza B + técnica ski erg', items:['Goblet squat o step-up 3×10 (sustituye RDL — descanso a la cadena posterior tras el peso muerto pesado de ayer)','Farmer carry ligero 3×30m @2×16-18kg (agarre ya trabajado ayer)','Remo horizontal 3×10','Ski erg técnica 6×250m (desc 1 min) — foco enganche de cadera','Dead hang 2×20-30s (reducido)', '⚡ Ajustado tras tu sesión real del lunes (deadlift EMOM 135-175lb + AMRAP con grip). Nota: sentiste el peso ligero para un objetivo de 65-75% — posible indicador de que tu 1RM real de deadlift está por encima de los 90kg de baseline. Lo revisamos en el test de la Semana 6.']},
-  {type:'run', tag:'RUN', title:'Intervalos', items:['Calentamiento 15\'','8×400m @3:55-4:05/km, desc 90\" trote suave','Vuelta a la calma 10\'']},
+  {type:'strength', tag:'FUERZA', title:'Snatches + For Time', items:['Clase CrossFit: EMOM 9 min — 2 hang squat snatch (55lb primera ronda -> 75lb última ronda)','WOD For Time 20 min: 18 back rack lunges 95lb + 16 cal row + 18 GHD sit-ups + 2 min descanso + 16 cal row + 18 front rack lunges 95lb + 18 GHD sit-ups + 2 min descanso + 18 GHD sit-ups + 16 cal row + 18 front rack lunges 95lb', '⚡ Buena sesión de técnica — snatch con buena forma y sin sentirse pesado, señal positiva de movilidad y técnica olímpica. Los rack lunges tienen transferencia directa al sandbag lunge de HYROX.']},
+  {type:'run', tag:'TÉCNICA', title:'Técnica + tempo controlado', items:['Calentamiento 12-15 min: 5 min trote suave + skips A/B, talones al glúteo, bounding (2x20m cada uno)','Claves técnicas: cadencia 170-180 ppm, apoyo bajo la cadera (no por delante), postura con inclinación desde tobillos, brazos adelante-atrás','20 min tempo controlado @ esfuerzo 7/10 (~5:00-5:15/km, prioriza sensación sobre el número)','Vuelta a la calma 10 min trote suave + estiramientos', '⚡ Ajustado: series de 400m pospuestas a la semana que viene — dos días seguidos de volumen de pierna (deadlift lunes, rack lunges martes) hacían contraproducente meter series máximas hoy. Foco en técnica con piernas cargadas.']},
   {type:'cond', tag:'COND', title:'Condicionamiento aeróbico', items:['4 rondas: 500m row moderado + 10 burpee broad jump + 15 wall ball (6kg) + 400m carrera suave','Ritmo conversacional — foco técnica, no velocidad']},
   {type:'racesim', tag:'RACE-SIM', title:'Compromiso carrera (corto)', items:['2 rondas: 1km run ritmo moderado-duro + sandbag lunges 50m + wall ball 20 reps (6kg)']},
   {type:'rest', tag:'DESCANSO', title:'Descanso', items:['Movilidad o yoga ligero opcional']},
@@ -510,62 +512,88 @@ const preplanWeeks = [
 ];
 
 let STORE = { logs:{}, preplanNotes:{}, prs:[], overrides:{} };
-let STORAGE_MODE = 'none'; // 'claude' | 'local' | 'none'
+let STORAGE_MODE = 'none'; // 'cloud' | 'local-fallback' | 'none'
 
-function hasClaudeStorage(){
-  return typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function';
+const JSONBIN_ID = '6a74dfb3f5f4af5e29f43707';
+const JSONBIN_KEY = '$2a$10$z.fsEmJ/EEDGePFK.RPfxeWNYnWzchlQZ4CrUhmKUwgBiSa4fqoIm';
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+
+async function cloudGet(){
+  const res = await fetch(JSONBIN_URL + '/latest', {
+    headers: { 'X-Master-Key': JSONBIN_KEY }
+  });
+  if(!res.ok) throw new Error('cloud get failed: ' + res.status);
+  const data = await res.json();
+  return data.record;
 }
 
-async function storageGet(key){
-  if(hasClaudeStorage()){
-    try{ const r = await window.storage.get(key); STORAGE_MODE='claude'; return r; }
-    catch(e){ /* fall through to local */ }
-  }
-  try{
-    const raw = localStorage.getItem(key);
-    STORAGE_MODE = 'local';
-    return raw!=null ? {key, value:raw} : null;
-  }catch(e){ STORAGE_MODE='none'; return null; }
-}
-
-async function storageSet(key, value){
-  if(hasClaudeStorage()){
-    try{ const r = await window.storage.set(key, value); STORAGE_MODE='claude'; return r; }
-    catch(e){ /* fall through to local */ }
-  }
-  try{
-    localStorage.setItem(key, value);
-    STORAGE_MODE = 'local';
-    return {key, value};
-  }catch(e){ STORAGE_MODE='none'; return null; }
+async function cloudSet(obj){
+  const res = await fetch(JSONBIN_URL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY },
+    body: JSON.stringify(obj)
+  });
+  if(!res.ok) throw new Error('cloud set failed: ' + res.status);
+  return true;
 }
 
 async function loadStore(){
   try{
-    const res = await storageGet('hyrox-data');
-    if(res && res.value) STORE = JSON.parse(res.value);
-  }catch(e){ /* no data yet */ }
+    const record = await cloudGet();
+    if(record && typeof record === 'object'){
+      STORE = record;
+      STORAGE_MODE = 'cloud';
+    }
+  }catch(e){
+    console.error('cloud load failed, falling back to local', e);
+    try{
+      const raw = localStorage.getItem('hyrox-data');
+      if(raw) STORE = JSON.parse(raw);
+      STORAGE_MODE = 'local-fallback';
+    }catch(e2){ STORAGE_MODE = 'none'; }
+  }
   if(!STORE.logs) STORE.logs = {};
   if(!STORE.preplanNotes) STORE.preplanNotes = {};
   if(!STORE.prs) STORE.prs = [];
   if(!STORE.overrides) STORE.overrides = {};
 }
+
 let saveTimeout;
 function persist(){
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(async ()=>{
-    const result = await storageSet('hyrox-data', JSON.stringify(STORE));
     const ind = document.getElementById('save-ind');
-    if(result){
-      ind.textContent = STORAGE_MODE==='local' ? 'Guardado en este dispositivo ✓' : 'Guardado ✓';
+    try{
+      await cloudSet(STORE);
+      STORAGE_MODE = 'cloud';
+      ind.textContent = 'Sincronizado ✓';
       ind.classList.remove('save-error');
-    } else {
-      ind.textContent = 'No se pudo guardar ⚠';
-      ind.classList.add('save-error');
+    }catch(e){
+      console.error('cloud save failed, falling back to local', e);
+      try{
+        localStorage.setItem('hyrox-data', JSON.stringify(STORE));
+        STORAGE_MODE = 'local-fallback';
+        ind.textContent = 'Sin conexión — guardado solo en este dispositivo ⚠';
+        ind.classList.add('save-error');
+      }catch(e2){
+        STORAGE_MODE = 'none';
+        ind.textContent = 'No se pudo guardar ⚠';
+        ind.classList.add('save-error');
+      }
     }
     ind.classList.add('show');
-    setTimeout(()=>ind.classList.remove('show'), 1600);
+    setTimeout(()=>ind.classList.remove('show'), 1800);
   }, 300);
+}
+
+async function manualSync(){
+  const btn = document.getElementById('sync-btn');
+  if(btn) btn.textContent = 'Sincronizando...';
+  await loadStore();
+  refreshAll();
+  if(btn) btn.textContent = '🔄 Sincronizar ahora';
+  const modeNote = document.getElementById('storage-mode-note');
+  if(modeNote) modeNote.textContent = storageModeText();
 }
 
 function renderCountdown(){
@@ -1245,24 +1273,18 @@ function initExport(){
   });
 }
 
-async function init(){
-  await loadStore();
-  const modeNote = document.getElementById('storage-mode-note');
-  if(STORAGE_MODE==='claude'){
-    modeNote.textContent = '💾 Guardando en tu cuenta de Claude — visible allí donde abras este archivo a través del chat.';
-  } else if(STORAGE_MODE==='local'){
-    modeNote.textContent = '💾 Guardando localmente en este navegador/dispositivo. No se sincroniza con otros dispositivos ni navegadores — si abres el archivo en otro móvil u ordenador, empezará vacío ahí.';
-  } else {
-    modeNote.textContent = '⚠ No se ha podido activar el guardado en este navegador — tus cambios no se conservarán al cerrar.';
+function storageModeText(){
+  if(STORAGE_MODE==='cloud'){
+    return '☁️ Sincronizado con la nube — visible igual en tu móvil y tu ordenador.';
+  } else if(STORAGE_MODE==='local-fallback'){
+    return '⚠ Sin conexión a la nube ahora mismo — guardando solo en este dispositivo. Se sincronizará en cuanto haya conexión.';
   }
+  return '⚠ No se ha podido activar ningún guardado — tus cambios no se conservarán al cerrar.';
+}
+
+function refreshAll(){
   renderCountdown();
   renderRoute();
-  document.getElementById('preplan-dates').textContent = rangeStr(PREPLAN_START, 42);
-  document.getElementById('cimientos-dates').textContent = rangeStr(PREPLAN_START, 42);
-  document.getElementById('base-dates').textContent = rangeStr(PLAN_START, 42);
-  document.getElementById('build-dates').textContent = rangeStr(BUILD_START, 35);
-  document.getElementById('peak-dates').textContent = rangeStr(PEAK_START, 21);
-  document.getElementById('taper-dates').textContent = rangeStr(TAPER_START, 14);
   renderPreplan();
   renderCimientosWeeks();
   renderBaseWeeks();
@@ -1272,10 +1294,25 @@ async function init(){
   renderClosedWeeks();
   renderBloques();
   renderPRs();
+}
+
+async function init(){
+  await loadStore();
+  const modeNote = document.getElementById('storage-mode-note');
+  modeNote.textContent = storageModeText();
+  document.getElementById('preplan-dates').textContent = rangeStr(PREPLAN_START, 42);
+  document.getElementById('cimientos-dates').textContent = rangeStr(PREPLAN_START, 42);
+  document.getElementById('base-dates').textContent = rangeStr(PLAN_START, 42);
+  document.getElementById('build-dates').textContent = rangeStr(BUILD_START, 35);
+  document.getElementById('peak-dates').textContent = rangeStr(PEAK_START, 21);
+  document.getElementById('taper-dates').textContent = rangeStr(TAPER_START, 14);
+  refreshAll();
   initTabs();
   initPrForm();
   initExport();
   initCalendar();
+  const syncBtn = document.getElementById('sync-btn');
+  if(syncBtn) syncBtn.addEventListener('click', manualSync);
   const today = new Date();
   if(today >= PLAN_START && today < BUILD_START){
     const wi = Math.floor((today - PLAN_START)/(7*86400000));
